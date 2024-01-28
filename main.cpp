@@ -48,7 +48,7 @@ public:
             else if (CharClass == "warrior" && damage % 2 != 0)
                 Health -= 3 * damage;
             else if (CharClass == "warrior" && damage % 2 == 0)
-                cout << "miss\n";
+                cout << "blocked\n";
             else
                 Health -= damage;
 
@@ -83,7 +83,7 @@ int main()
 
     int EnemyDamage;
     do {
-        cout << "Enter enemy damage value (0 to complete): ";
+        cout << "Enter enemy damage value: ";
         cin >> EnemyDamage;
         if (EnemyDamage != 0)
             character.takeDamage(EnemyDamage);
