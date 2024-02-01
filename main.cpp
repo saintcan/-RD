@@ -1,93 +1,104 @@
 #include <iostream>
-#include <string>
-#include <cstdlib>
-#include <ctime>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-class Character
-{
-private:
-    string Name, CharClass;
-    int Power, Health, Maxhealth;
+// Функція для знаходження найбільшої шкоди
+vector<int> findMaxDamage(const vector<int>& damages) {
+    vector<int> maxIndices;
+    int maxDamage = *max_element(damages.begin(), damages.end());
 
-public:
-    Character(string n, int h, string c, int p)
-    {
-        Name = n;
-        Health = h;
-        CharClass = c;
-        Power = p;
-        Maxhealth = h;
+    for (int i = 0; i < damages.size(); ++i) {
+        if (damages[i] == maxDamage)
+            maxIndices.push_back(i);
     }
 
-    int GetHealth()
-    {
-        return Health;
+    return maxIndices;
+}
+
+// Функція для знаходження найменшої шкоди
+vector<int> findMinDamage(const vector<int>& damages) {
+    vector<int> minIndices;
+    int minDamage = *min_element(damages.begin(), damages.end());
+
+    for (int i = 0; i < damages.size(); ++i) {
+        if (damages[i] == minDamage)
+            minIndices.push_back(i);
     }
 
-    void takeDamage(int damage)
-    {
-        if (Health > 0) {
-            if (CharClass == "mage") {
-                if (damage > 2 * Power) {
-                    int chance = rand() % 2; // 50% chance
-                    if (chance == 0) {
-                        cout << "miss\n";
-                        return;
-                    }
-                }
-            }
-            else if (CharClass == "warrior" && Health <= 0.3 * Maxhealth)
-            {
-                damage -= Power;
-            }
+    return minIndices;
+}
 
-            if (CharClass == "mage" && damage % 2 == 0)
-                Health -= 2 * damage;
-            else if (CharClass == "warrior" && damage % 2 != 0)
-                Health -= 3 * damage;
-            else if (CharClass == "warrior" && damage % 2 == 0)
-                cout << "blocked\n";
-            else
-                Health -= damage;
+// Функція для знаходження номерів, які представляють лікування
+vector<int> findHealing(const vector<int>& damages) {
+    vector<int> healingIndices;
 
-            if (Health <= 0)
-                cout << Name << " died!\n";
-            else
-                cout << Name << " left " << Health << " health\n";
-        }
-        else {
-            cout << Name << " already dead!\n";
-        }
+    for (int i = 0; i < damages.size(); ++i) {
+        if (damages[i] < 0)
+            healingIndices.push_back(i);
     }
-};
 
-int main() 
-{
-    srand(time(0));
+    return healingIndices;
+}
 
-    string Name, CharClass;
-    int Health, Power;
+// Функція для підрахунку загальної шкоди або лікування
+int calculateTotal(const vector<int>& damages, bool isDamage) {
+    int total = 0;
+    for (int damage : damages) {
+        if ((isDamage && damage > 0) || (!isDamage && damage < 0))
+            total += damage;
+    }
+    return total;
+}
 
-    cout << "character name: ";
-    cin >> Name;
-    cout << "amount of health: ";
-    cin >> Health;
-    cout << "Choose a character class (mage or warrior): ";
-    cin >> CharClass;
-    cout << "Enter the power of the character: ";
-    cin >> Power;
+// Функція, що перевіряє, чи є хтось, хто не завдав шкоди
+bool hasZeroDamage(const vector<int>& damages) {
+    for (int damage : damages) {
+        if (damage == 0)
+            return true;
+    }
+    return false;
+}
 
-    Character character(Name, Health, CharClass, Power);
+int main() {
+    vector<int> damages;
+    int input;
 
-    int EnemyDamage;
-    do {
-        cout << "Enter enemy damage value: ";
-        cin >> EnemyDamage;
-        if (EnemyDamage != 0)
-            character.takeDamage(EnemyDamage);
-    } while (character.GetHealth() != 0);
+    cout << "Enter the amount of damage (or healing if the number is negative) for each number:\n";
+    while (true) {
+        cin >> input;
+        if (input == 0)
+            break;
+        damages.push_back(input);
+    }
+
+    vector<int> maxDamageIndices = findMaxDamage(damages);
+    vector<int> minDamageIndices = findMinDamage(damages);
+    vector<int> healingIndices = findHealing(damages);
+
+    cout << "The most damage was caused under the following numbers: ";
+    for (int index : maxDamageIndices)
+        cout << index + 1 << " ";
+    cout << endl;
+
+    cout << "The least damage was caused under the following numbers: ";
+    for (int index : minDamageIndices)
+        cout << index + 1 << " ";
+    cout << endl;
+
+    cout << "The healing was carried out under the following numbers: ";
+    for (int index : healingIndices)
+        cout << index + 1 << " ";
+    cout << endl;
+
+    cout << "Total damage: " << calculateTotal(damages, true) << endl;
+    cout << "Total healing: " << calculateTotal(damages, false) << endl;
+
+    if (hasZeroDamage(damages))
+        cout << "There is someone who has not harmed us\n";
+    else
+        cout << "Everyone has harmed us\n";
 
     return 0;
 }
