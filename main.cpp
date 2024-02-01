@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <string>
 
 using namespace std;
 
@@ -63,16 +64,17 @@ bool hasZeroDamage(const vector<int>& damages) {
 
 int main() {
     vector<int> damages;
-    int input;
+    string input;
 
-    cout << "Enter the amount of damage (or healing if the number is negative) for each number:\n";
+    cout << "Enter the amount of damage (or healing if the number is negative) for each number to exit print (stop) :\n";
     while (true) {
         cin >> input;
-        if (input == 0)
+        if (input == "stop")
             break;
-        damages.push_back(input);
+        int number = std::stoi(input);
+        damages.push_back(number);
     }
-
+    
     vector<int> maxDamageIndices = findMaxDamage(damages);
     vector<int> minDamageIndices = findMinDamage(damages);
     vector<int> healingIndices = findHealing(damages);
