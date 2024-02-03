@@ -1,93 +1,95 @@
 #include <iostream>
 #include <string>
-#include <cstdlib>
-#include <ctime>
+#include <map>
 
 using namespace std;
 
-class Character
-{
+struct Player {
+    string playerName;
+    float playerStrength;
+    Player() = default;
+    Player(const string& name, float strength) : playerName(name), playerStrength(strength) {}
+};
+
+class Clan {
 private:
-    string Name, CharClass;
-    int Power, Health, Maxhealth;
+    map<string, Player> clanMembers;
 
 public:
-    Character(string n, int h, string c, int p)
-    {
-        Name = n;
-        Health = h;
-        CharClass = c;
-        Power = p;
-        Maxhealth = h;
+    // ƒодати гравц€ до клану
+    void AddPlayer(const string& playerName, float playerStrength) {
+        Player newPlayer(playerName, playerStrength);
+        clanMembers[playerName] = newPlayer;
     }
 
-    int GetHealth()
-    {
-        return Health;
+    // ќтримати к≥льк≥сть гравц≥в у клан≥ за назвою
+    int GetPlayerCount(const string& clanName) {
+        return clanMembers.count(clanName);
     }
 
-    void takeDamage(int damage)
-    {
-        if (Health > 0) {
-            if (CharClass == "mage") {
-                if (damage > 2 * Power) {
-                    int chance = rand() % 2; // 50% chance
-                    if (chance == 0) {
-                        cout << "miss\n";
-                        return;
-                    }
-                }
-            }
-            else if (CharClass == "warrior" && Health <= 0.3 * Maxhealth)
-            {
-                damage -= Power;
-            }
+    // ќтримати результат поЇдинку м≥ж кланами
+    int ClanFight(const string& firstClanName, const string& secondClanName) {
+        float firstClanStrength = CalculateClanStrength(firstClanName);
+        float secondClanStrength = CalculateClanStrength(secondClanName);
 
-            if (CharClass == "mage" && damage % 2 == 0)
-                Health -= 2 * damage;
-            else if (CharClass == "warrior" && damage % 2 != 0)
-                Health -= 3 * damage;
-            else if (CharClass == "warrior" && damage % 2 == 0)
-                cout << "blocked\n";
-            else
-                Health -= damage;
+        if (firstClanStrength == secondClanStrength)
+            return 0;
+        else if (firstClanStrength > secondClanStrength)
+            return 1;
+        else
+            return -1;
+    }
 
-            if (Health <= 0)
-                cout << Name << " died!\n";
-            else
-                cout << Name << " left " << Health << " health\n";
+private:
+    // ќбчислити силу клану за його назвою
+    float CalculateClanStrength(const string& clanName) {
+        float totalStrength = 0;
+        for (const auto& member : clanMembers) {
+            if (member.first == clanName)
+                totalStrength += member.second.playerStrength;
         }
-        else {
-            cout << Name << " already dead!\n";
-        }
+        return totalStrength;
     }
 };
 
-int main() 
-{
-    srand(time(0));
+int main() {
+    Clan clanSystem;
 
-    string Name, CharClass;
-    int Health, Power;
+    while (true) {
+        string clanName, playerName;
+        float playerStrength;
 
-    cout << "character name: ";
-    cin >> Name;
-    cout << "amount of health: ";
-    cin >> Health;
-    cout << "Choose a character class (mage or warrior): ";
-    cin >> CharClass;
-    cout << "Enter the power of the character: ";
-    cin >> Power;
+        cout << "Enter clan name (or stop to finish): ";
+        cin >> clanName;
+        if (clanName == "stop")
+            break;
 
-    Character character(Name, Health, CharClass, Power);
+        cout << "Enter player name: ";
+        cin >> playerName;
 
-    int EnemyDamage;
-    do {
-        cout << "Enter enemy damage value: ";
-        cin >> EnemyDamage;
-        if (EnemyDamage != 0)
-            character.takeDamage(EnemyDamage);
-    } while (character.GetHealth() != 0);
+        cout << "Enter player strength: ";
+        cin >> playerStrength;
+
+        clanSystem.AddPlayer(clanName, playerStrength);
+    }
+
+    string firstClanName = "First Clan";
+    string secondClanName = "Second Clan";
+
+    int firstClanPlayerCount = clanSystem.GetPlayerCount(firstClanName);
+    int secondClanPlayerCount = clanSystem.GetPlayerCount(secondClanName);
+
+    int fightResult = clanSystem.ClanFight(firstClanName, secondClanName);
+
+    cout << "First clan player count: " << firstClanPlayerCount << endl;
+    cout << "Second clan player count: " << secondClanPlayerCount << endl;
+
+    if (fightResult == 0)
+        cout << "It's a draw!" << endl;
+    else if (fightResult == 1)
+        cout << "First clan wins!" << endl;
+    else if (fightResult == -1)
+        cout << "Second clan wins!" << endl;
 
     return 0;
 }
