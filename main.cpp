@@ -1,93 +1,68 @@
 #include <iostream>
-#include <string>
-#include <cstdlib>
-#include <ctime>
+#include <vector>
 
 using namespace std;
 
-class Character
-{
-private:
-    string Name, CharClass;
-    int Power, Health, Maxhealth;
-
-public:
-    Character(string n, int h, string c, int p)
-    {
-        Name = n;
-        Health = h;
-        CharClass = c;
-        Power = p;
-        Maxhealth = h;
-    }
-
-    int GetHealth()
-    {
-        return Health;
-    }
-
-    void takeDamage(int damage)
-    {
-        if (Health > 0) {
-            if (CharClass == "mage") {
-                if (damage > 2 * Power) {
-                    int chance = rand() % 2; // 50% chance
-                    if (chance == 0) {
-                        cout << "miss\n";
-                        return;
-                    }
-                }
-            }
-            else if (CharClass == "warrior" && Health <= 0.3 * Maxhealth)
-            {
-                damage -= Power;
-            }
-
-            if (CharClass == "mage" && damage % 2 == 0)
-                Health -= 2 * damage;
-            else if (CharClass == "warrior" && damage % 2 != 0)
-                Health -= 3 * damage;
-            else if (CharClass == "warrior" && damage % 2 == 0)
-                cout << "blocked\n";
-            else
-                Health -= damage;
-
-            if (Health <= 0)
-                cout << Name << " died!\n";
-            else
-                cout << Name << " left " << Health << " health\n";
-        }
-        else {
-            cout << Name << " already dead!\n";
-        }
-    }
+// класи персонажів
+enum CharacterClass {
+    Warrior,
+    Mage,
 };
 
-int main() 
-{
-    srand(time(0));
+// структури для даних персонажа
+struct Character {
+    int id;
+    CharacterClass characterClass;
+    float meleePower;
+    float rangedPower;
+};
 
-    string Name, CharClass;
-    int Health, Power;
+// Функція для знаходження найсильнішого персонажа за сумою ближніх та дальніх атакк
+int findStrongestCharacter(const vector<Character>& characters) {
+    int strongestId = -1;
+    float maxPower = -1;
 
-    cout << "character name: ";
-    cin >> Name;
-    cout << "amount of health: ";
-    cin >> Health;
-    cout << "Choose a character class (mage or warrior): ";
-    cin >> CharClass;
-    cout << "Enter the power of the character: ";
-    cin >> Power;
+    for (const Character& character : characters) {
+        float totalPower = character.meleePower + character.rangedPower;
+        if (totalPower > maxPower) {
+            maxPower = totalPower;
+            strongestId = character.id;
+        }
+    }
 
-    Character character(Name, Health, CharClass, Power);
+    return strongestId;
+}
 
-    int EnemyDamage;
-    do {
-        cout << "Enter enemy damage value: ";
-        cin >> EnemyDamage;
-        if (EnemyDamage != 0)
-            character.takeDamage(EnemyDamage);
-    } while (character.GetHealth() != 0);
+// Функція для знаходження найсильнішого персонажа в кожному класі
+vector<int> findStrongestCharacterByClass(const vector<Character>& characters) {
+    vector<float> maxPowers(3, -1); 
+    vector<int> strongestIds(3, -1); 
+
+    for (const Character& character : characters) {
+        float totalPower = character.meleePower + character.rangedPower;
+        if (totalPower > maxPowers[character.characterClass]) {
+            maxPowers[character.characterClass] = totalPower;
+            strongestIds[character.characterClass] = character.id;
+        }
+    }
+
+    return strongestIds;
+}
+
+int main() {
+    vector<Character> characters = {
+        {1, Warrior, 10.5f, 8.3f},
+        {2, Mage, 5.2f, 12.7f},
+        {4, Warrior, 9.2f, 7.9f},
+        {5, Mage, 8.4f, 10.1f},
+    };
+
+    int strongestId = findStrongestCharacter(characters);
+    cout << "Strongest character: ID " << strongestId << endl;
+
+    vector<int> strongestByClass = findStrongestCharacterByClass(characters);
+    cout << "Strongest warrior: ID " << strongestByClass[Warrior] << endl;
+    cout << "Strongest mage: ID " << strongestByClass[Mage] << endl;
 
     return 0;
 }
