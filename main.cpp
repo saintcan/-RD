@@ -1,36 +1,37 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <vector>
+#include <numeric>
 
 using namespace std;
 
-struct Player {
-    string playerName;
-    float playerStrength;
-    Player() = default;
-    Player(const string& name, float strength) : playerName(name), playerStrength(strength) {}
-};
-
-class Clan {
+class ClanSystem {
 private:
-    map<string, Player> clanMembers;
+    map<string, vector<float>> clanMembers;
+    vector<string> clanNames;
 
 public:
     // Додати гравця до клану
-    void AddPlayer(const string& playerName, float playerStrength) {
-        Player newPlayer(playerName, playerStrength);
-        clanMembers[playerName] = newPlayer;
+    void AddPlayer(const string& clanName, const string& playerName, float playerStrength) {
+        clanMembers[clanName].push_back(playerStrength); 
+
+        // Перевіряємо, чи клан вже збережено
+        auto it = find(clanNames.begin(), clanNames.end(), clanName);
+        if (it == clanNames.end()) {
+            clanNames.push_back(clanName); 
+        }
     }
 
     // Отримати кількість гравців у клані за назвою
     int GetPlayerCount(const string& clanName) {
-        return clanMembers.count(clanName);
+        return clanMembers[clanName].size();
     }
 
     // Отримати результат поєдинку між кланами
     int ClanFight(const string& firstClanName, const string& secondClanName) {
-        float firstClanStrength = CalculateClanStrength(firstClanName);
-        float secondClanStrength = CalculateClanStrength(secondClanName);
+        float firstClanStrength = accumulate(clanMembers[firstClanName].begin(), clanMembers[firstClanName].end(), 0.0f);
+        float secondClanStrength = accumulate(clanMembers[secondClanName].begin(), clanMembers[secondClanName].end(), 0.0f);
 
         if (firstClanStrength == secondClanStrength)
             return 0;
@@ -40,20 +41,14 @@ public:
             return -1;
     }
 
-private:
-    // Обчислити силу клану за його назвою
-    float CalculateClanStrength(const string& clanName) {
-        float totalStrength = 0;
-        for (const auto& member : clanMembers) {
-            if (member.first == clanName)
-                totalStrength += member.second.playerStrength;
-        }
-        return totalStrength;
+    // Отримати збережені імена кланів
+    vector<string> GetClanNames() {
+        return clanNames;
     }
 };
 
 int main() {
-    Clan clanSystem;
+    ClanSystem clanSystem;
 
     while (true) {
         string clanName, playerName;
@@ -64,32 +59,37 @@ int main() {
         if (clanName == "stop")
             break;
 
-        cout << "Enter player name: ";
-        cin >> playerName;
+        while (true) {
+            cout << "Enter player name (or All to complete the clan): ";
+            cin >> playerName;
+            if (playerName == "All")
+                break;
 
-        cout << "Enter player strength: ";
-        cin >> playerStrength;
+            cout << "Enter player strength: ";
+            cin >> playerStrength;
 
-        clanSystem.AddPlayer(clanName, playerStrength);
+            clanSystem.AddPlayer(clanName, playerName, playerStrength);
+        }
     }
 
-    string firstClanName = "First Clan";
-    string secondClanName = "Second Clan";
+    // Отримання і виведення результату бою
+    vector<string> clanNames = clanSystem.GetClanNames();
+    if (clanNames.size() >= 2) {
+        string firstClanName = clanNames[0];
+        string secondClanName = clanNames[1];
+        int fightResult = clanSystem.ClanFight(firstClanName, secondClanName);
 
-    int firstClanPlayerCount = clanSystem.GetPlayerCount(firstClanName);
-    int secondClanPlayerCount = clanSystem.GetPlayerCount(secondClanName);
-
-    int fightResult = clanSystem.ClanFight(firstClanName, secondClanName);
-
-    cout << "First clan player count: " << firstClanPlayerCount << endl;
-    cout << "Second clan player count: " << secondClanPlayerCount << endl;
-
-    if (fightResult == 0)
-        cout << "It's a draw!" << endl;
-    else if (fightResult == 1)
-        cout << "First clan wins!" << endl;
-    else if (fightResult == -1)
-        cout << "Second clan wins!" << endl;
+        cout << "Result of the fight: ";
+        if (fightResult == 0)
+            cout << "It's a draw!" << endl;
+        else if (fightResult == 1)
+            cout << "First Clan wins!" << endl;
+        else
+            cout << "Second Clan wins!" << endl;
+    }
+    else {
+        cout << "Not enough clans to simulate a fight." << endl;
+    }
 
     return 0;
 }

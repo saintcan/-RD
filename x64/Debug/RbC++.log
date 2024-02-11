@@ -1,3 +1,3 @@
 ﻿  main.cpp
-F:\c++test\RbC++\main.cpp(27,33): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+F:\c++test\RbC++\main.cpp(28,42): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   RbC++.vcxproj -> F:\c++test\RbC++\x64\Debug\RbC++.exe
