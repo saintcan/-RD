@@ -130,7 +130,6 @@
     <ClCompile Include="character.cpp" />
     <ClCompile Include="damagemodifier.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="character.h" />

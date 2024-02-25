@@ -3,6 +3,7 @@
 
 class DamageModifier {
 public:
+    virtual ~DamageModifier() = default;
     virtual float CalculateDamage(float currentHealth, float damage) const = 0;
 };
 
@@ -11,7 +12,7 @@ private:
     float multiplicator;
 
 public:
-    MultiplicationDamageModifier(float multiplicator);
+    explicit MultiplicationDamageModifier(float multiplicator);
     float CalculateDamage(float currentHealth, float damage) const override;
 };
 
@@ -20,7 +21,7 @@ private:
     float addition;
 
 public:
-    AdditionDamageModifier(float addition);
+    explicit AdditionDamageModifier(float addition);
     float CalculateDamage(float currentHealth, float damage) const override;
 };
 
@@ -29,7 +30,7 @@ private:
     float multiplicator;
 
 public:
-    ParityDamageModifier(float multiplicator);
+    explicit ParityDamageModifier(float multiplicator);
     float CalculateDamage(float currentHealth, float damage) const override;
 };
 

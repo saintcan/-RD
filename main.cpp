@@ -5,17 +5,17 @@
 int main() {
     Character character;
 
-    Sword sword;
-    Bow bow;
-    Spear spear;
-    FireStaff fireStaff;
-    IceStaff iceStaff;
+    std::unique_ptr<Weapon> swordPtr(new Sword());
+    std::unique_ptr<Weapon> bowPtr(new Bow());
+    std::unique_ptr<Weapon> spearPtr(new Spear());
+    std::unique_ptr<Weapon> fireStaffPtr(new FireStaff());
+    std::unique_ptr<Weapon> iceStaffPtr(new IceStaff());
 
-    //character.SetWeapon(&sword); //меч
-    character.SetWeapon(&bow); //лук
-    //character.SetWeapon(&spear); //спис
-    //character.SetWeapon(&fireStaff); //вогняний посох
-    //character.SetWeapon(&iceStaff); //крижаний посох
+    character.SetWeapon(std::move(swordPtr)); // Передача власності розумного вказівника
+    character.SetWeapon(std::move(bowPtr));
+    character.SetWeapon(std::move(spearPtr));
+    character.SetWeapon(std::move(fireStaffPtr));
+    character.SetWeapon(std::move(iceStaffPtr));
 
     Weapon* weapon = character.GetWeapon();
     if (weapon) {
